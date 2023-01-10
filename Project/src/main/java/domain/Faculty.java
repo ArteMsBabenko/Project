@@ -1,13 +1,9 @@
 package domain;
 
-import java.io.Serializable;
-import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -16,32 +12,22 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "faculty")
-public class Faculty implements Serializable {
-	private static final long serialVersionUID = 1L;
-
+public class Faculty {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "faculty_id")
 	private Integer id;
 	@Column
-	@NotBlank(message = "Название факультета не может быть пустым!")
 	private String title;
 	
 	@ManyToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "subject_faculty", joinColumns = @JoinColumn(name = "faculty_id"), inverseJoinColumns = @JoinColumn(name = "subject_id"))
 	private Set<Subject> examSubjects;
-	
-	@ElementCollection(fetch = FetchType.LAZY)
-	@CollectionTable(name = "subject_coeffs")
-	@MapKeyColumn(name = "subject_id")
-	private Map<Subject, Double> subjectCoeffs;
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "faculty")
 	@Column(nullable = false)
@@ -79,14 +65,6 @@ public class Faculty implements Serializable {
 		this.examSubjects = examSubjects;
 	}
 
-	public Map<Subject, Double> getSubjectCoeffs() {
-		return subjectCoeffs;
-	}
-
-	public void setSubjectCoeffs(Map<Subject, Double> subjectCoeffs) {
-		this.subjectCoeffs = subjectCoeffs;
-	}
-
 	public Set<Speciality> getSpecialities() {
 		return specialities;
 	}
@@ -99,7 +77,9 @@ public class Faculty implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((examSubjects == null) ? 0 : examSubjects.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((specialities == null) ? 0 : specialities.hashCode());
 		result = prime * result + ((title == null) ? 0 : title.hashCode());
 		return result;
 	}
@@ -113,10 +93,20 @@ public class Faculty implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Faculty other = (Faculty) obj;
+		if (examSubjects == null) {
+			if (other.examSubjects != null)
+				return false;
+		} else if (!examSubjects.equals(other.examSubjects))
+			return false;
 		if (id == null) {
 			if (other.id != null)
 				return false;
 		} else if (!id.equals(other.id))
+			return false;
+		if (specialities == null) {
+			if (other.specialities != null)
+				return false;
+		} else if (!specialities.equals(other.specialities))
 			return false;
 		if (title == null) {
 			if (other.title != null)
