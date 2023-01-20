@@ -1,66 +1,47 @@
 package domain;
 
-
-import java.io.Serializable;
 import java.time.LocalDate;
+
 import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.MapsId;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "applicant")
-public class Applicant implements Serializable, Comparable<Applicant> {
-	private static final long serialVersionUID = 1L;
-	
-	@Id
-	@Column
-	private Integer id;
+public class Applicant extends User {
 	@Column
 	private LocalDate birthDate;
 	@Column
 	private String city;
 	@Column
 	private String school;
-	@Column
-	private String fileName;
-	@Column
-	private String fileType;
-	@Column
-	@Lob
-	private byte[] fileData;
-	
-	@OneToOne
-    @MapsId
-    private User user;
 
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "speciality_applicant", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "speciality_id"))
+	private Set<Speciality> applicantSpecialities;
+	
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "applicant")
 	@Column(nullable = false)
 	private Set<Application> applications;
 
 	
-	public Applicant() { }
+	public Applicant() {
+		super();
+	}
 
 	public Applicant(LocalDate birthDate, String city, String school) {
+		super();
 		this.birthDate = birthDate;
 		this.city = city;
 		this.school = school;
-	}
-
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
 	}
 
 	public LocalDate getBirthDate() {
@@ -87,36 +68,12 @@ public class Applicant implements Serializable, Comparable<Applicant> {
 		this.school = school;
 	}
 
-	public String getFileName() {
-		return fileName;
+	public Set<Speciality> getApplicantSpecialities() {
+		return applicantSpecialities;
 	}
 
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
-	}
-
-	public String getFileType() {
-		return fileType;
-	}
-
-	public void setFileType(String fileType) {
-		this.fileType = fileType;
-	}
-
-	public byte[] getFileData() {
-		return fileData;
-	}
-
-	public void setFileData(byte[] fileData) {
-		this.fileData = fileData;
-	}
-
-	public User getUser() {
-		return user;
-	}
-
-	public void setUser(User user) {
-		this.user = user;
+	public void setApplicantSpecialities(Set<Speciality> applicantSpecialities) {
+		this.applicantSpecialities = applicantSpecialities;
 	}
 
 	public Set<Application> getApplications() {
@@ -130,8 +87,9 @@ public class Applicant implements Serializable, Comparable<Applicant> {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		int result = super.hashCode();
+		result = prime * result + ((applicantSpecialities == null) ? 0 : applicantSpecialities.hashCode());
+		result = prime * result + ((applications == null) ? 0 : applications.hashCode());
 		result = prime * result + ((birthDate == null) ? 0 : birthDate.hashCode());
 		result = prime * result + ((city == null) ? 0 : city.hashCode());
 		result = prime * result + ((school == null) ? 0 : school.hashCode());
@@ -142,15 +100,20 @@ public class Applicant implements Serializable, Comparable<Applicant> {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (!super.equals(obj))
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
 		Applicant other = (Applicant) obj;
-		if (id == null) {
-			if (other.id != null)
+		if (applicantSpecialities == null) {
+			if (other.applicantSpecialities != null)
 				return false;
-		} else if (!id.equals(other.id))
+		} else if (!applicantSpecialities.equals(other.applicantSpecialities))
+			return false;
+		if (applications == null) {
+			if (other.applications != null)
+				return false;
+		} else if (!applications.equals(other.applications))
 			return false;
 		if (birthDate == null) {
 			if (other.birthDate != null)
@@ -171,13 +134,7 @@ public class Applicant implements Serializable, Comparable<Applicant> {
 	}
 
 	@Override
-	public int compareTo(Applicant applicant) {
-		return (this.id > applicant.id) ? 1 : -1;
-	}
-
-	@Override
 	public String toString() {
-		return "Applicant [id=" + id + ", birthDate=" + birthDate + ", city=" + city + ", school=" + school + "]";
+		return "Applicant [birthDate=" + birthDate + ", city=" + city + ", school=" + school + "]";
 	}
-
 }
